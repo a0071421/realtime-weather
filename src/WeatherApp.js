@@ -2,6 +2,7 @@ import styled, { css } from "styled-components";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import "./WeatherApp.css";
 import WeatherIcon from "./components/WeatherIcon";
+import axios from "axios";
 
 /* 定義許多組件都會共用到的樣式 */
 /* const buttonDefault = () => css`
@@ -120,16 +121,16 @@ const Redo = styled.div`
   }
 `;
 
-const fetchSunRiseAndSet = async (locationName) => {
+const fetchSunRiseAndSet = (locationName) => {
   const now = new Intl.DateTimeFormat("zh-TW", {})
     .format(new Date())
     .replace(/\//g, "-");
-  return await fetch(
-    `https://opendata.cwb.gov.tw/api/v1/rest/datastore/A-B0062-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=${locationName}&dataTime=${now}`
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      const location = data.records.locations.location[0];
+  return axios
+    .get(
+      `https://opendata.cwb.gov.tw/api/v1/rest/datastore/A-B0062-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=${locationName}&dataTime=${now}`
+    )
+    .then((res) => {
+      const location = res.data.records.locations.location[0];
       const filterSun = location.time[0].parameter
         .filter((timeParam) =>
           ["日出時刻", "日沒時刻"].includes(timeParam.parameterName)
@@ -168,52 +169,35 @@ const getMoment = ({
 };
 
 const fetchCurWeather = async () => {
-  return await fetch(
+  const res = await axios.get(
     "https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=臺北"
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      const curWeather = data.records.location[0];
-      const weatherElements = curWeather.weatherElement.reduce(
-        (neededElements, item) => {
-          if (["WDSD", "TEMP", "HUMD"].includes(item.elementName)) {
-            neededElements[item.elementName] = item.elementValue;
-          }
-          return neededElements;
-        },
-        {}
-      );
-      return {
-        observationTime: curWeather.time.obsTime,
-        locationName: curWeather.locationName,
-        temperature: weatherElements.TEMP,
-        windSpeed: weatherElements.WDSD,
-        humid: weatherElements.HUMD,
-      };
-      /* setCurWeather((prev) => {
-        return {
-          ...prev,
-          observationTime: curWeather.time.obsTime,
-          locationName: curWeather.locationName,
-          temperature: weatherElements.TEMP,
-          windSpeed: weatherElements.WDSD,
-          humid: weatherElements.HUMD,
-          description: "",
-          weatherCode: 0,
-          rainPossibility: 0,
-          comfortability: "",
-        };
-      }); */
-    });
+  );
+  const curWeather = res.data.records.location[0];
+  const weatherElements = curWeather.weatherElement.reduce(
+    (neededElements, item) => {
+      if (["WDSD", "TEMP", "HUMD"].includes(item.elementName)) {
+        neededElements[item.elementName] = item.elementValue;
+      }
+      return neededElements;
+    },
+    {}
+  );
+  return {
+    observationTime: curWeather.time.obsTime,
+    locationName: curWeather.locationName,
+    temperature: weatherElements.TEMP,
+    windSpeed: weatherElements.WDSD,
+    humid: weatherElements.HUMD,
+  };
 };
 
 const fetchWeatherForecast = () => {
-  return fetch(
-    "https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=臺北市"
-  )
-    .then((res) => res.json())
-    .then((data) => {
-      const weatherForecast = data.records.location[0];
+  return axios
+    .get(
+      "https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=臺北市"
+    )
+    .then((res) => {
+      const weatherForecast = res.data.records.location[0];
       const weatherElements = weatherForecast.weatherElement.reduce(
         (neededElements, item) => {
           if (["Wx", "PoP", "CI"].includes(item.elementName)) {
