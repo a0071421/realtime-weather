@@ -61,12 +61,10 @@ const weatherIcons = {
 
 // 將天氣代碼轉為天氣型態 ex. 1 => "isThunderstorm"
 const weatherCodeToType = (weatherCode) => {
-  const [weatherTypeResult] = Object.entries(weatherTypes).find(
-    ([type, codes]) => {
-      return codes.includes(Number(weatherCode)) || [];
-    }
-  );
-  // console.log("weatherCodeToType");
+  const [weatherTypeResult] =
+    Object.entries(weatherTypes).find(([type, codes]) => {
+      return codes.includes(Number(weatherCode));
+    }) || [];
   return weatherTypeResult;
 };
 
@@ -78,7 +76,6 @@ const WeatherIcon = ({ curWeatherCode, moment }) => {
     console.log("useMemo");
     return weatherCodeToType(curWeatherCode);
   }, [curWeatherCode]);
-
   useEffect(() => {
     console.log("execute function in useEffect from icon");
     setCurWeatherIcon(weatherIconResult);

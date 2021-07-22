@@ -120,11 +120,11 @@ const Redo = styled.div`
   }
 `;
 
-const fetchSunRiseAndSet = (locationName) => {
+const fetchSunRiseAndSet = async (locationName) => {
   const now = new Intl.DateTimeFormat("zh-TW", {})
     .format(new Date())
     .replace(/\//g, "-");
-  return fetch(
+  return await fetch(
     `https://opendata.cwb.gov.tw/api/v1/rest/datastore/A-B0062-001?Authorization=CWB-96A8FAF2-BE73-469B-AA3E-17A77A2F8DF6&locationName=${locationName}&dataTime=${now}`
   )
     .then((res) => res.json())
@@ -150,15 +150,21 @@ const fetchSunRiseAndSet = (locationName) => {
     });
 };
 
-const getMoment = async () => {
-  const sunriseAndSet = await fetchSunRiseAndSet("臺北市");
-  const {
-    time: { dataTime, sunrise, sunset },
-  } = sunriseAndSet;
-  const sunriseTimestamp = new Date(`${dataTime} ${sunrise}`);
-  const sunsetTimestamp = new Date(`${dataTime} ${sunset}`);
-  const now = new Date().getTime();
-  return sunriseTimestamp <= now && now <= sunsetTimestamp ? "day" : "night";
+const getMoment = ({
+  observationTime,
+  time: { dataTime, sunrise, sunset },
+}) => {
+  if (dataTime) {
+    const observationTimestamp = new Date(observationTime).getTime();
+    const sunriseTimestamp = new Date(`${dataTime} ${sunrise}`).getTime();
+    const sunsetTimestamp = new Date(`${dataTime} ${sunset}`).getTime();
+    return sunriseTimestamp <= observationTimestamp &&
+      observationTimestamp <= sunsetTimestamp
+      ? "day"
+      : "night";
+  } else {
+    return;
+  }
 };
 
 const fetchCurWeather = async () => {
@@ -248,25 +254,36 @@ const WeatherApp = () => {
     weatherCode: 0,
     rainPossibility: 0,
     comfortability: "",
+    time: {
+      dataTime: "",
+      sunrise: "",
+      sunset: "",
+    },
   });
-
   const fetchData = useCallback(() => {
     console.log("useCallback");
     const fetchWeatherData = async () => {
-      const [curWeather, weatherForecast, sunriseAndSet] = await Promise.all([
+      const [weatherEle, weatherForecast, sunriseAndSet] = await Promise.all([
         fetchCurWeather(),
         fetchWeatherForecast(),
+        fetchSunRiseAndSet("臺北市"),
       ]);
 
       console.log("useCallback done");
       setCurWeather({
-        ...curWeather,
+        ...weatherEle,
         ...weatherForecast,
+        ...sunriseAndSet,
       });
     };
 
     fetchWeatherData();
   }, []);
+
+  const moment = useMemo(() => {
+    console.log("moment memo");
+    return getMoment(curWeather);
+  }, [curWeather]);
 
   useEffect(() => {
     console.log("execute function in useEffect");
@@ -285,7 +302,10 @@ const WeatherApp = () => {
           <Temperature>
             {Math.round(curWeather.temperature)} <Celsius>°C</Celsius>
           </Temperature>
-          <WeatherIcon curWeatherCode={curWeather.weatherCode} moment="day" />
+          <WeatherIcon
+            curWeatherCode={curWeather.weatherCode}
+            moment={moment || "day"}
+          />
         </CurrentWeather>
         <AirFlow>
           <AirFlowIcon />
