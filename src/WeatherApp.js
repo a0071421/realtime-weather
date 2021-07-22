@@ -1,4 +1,4 @@
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import "./WeatherApp.css";
 import WeatherIcon from "./components/WeatherIcon";
@@ -29,7 +29,8 @@ const acceptButton = styled.button`
 // 載入icons
 import { ReactComponent as AirFlowIcon } from "./images/airFlow.svg";
 import { ReactComponent as RainIcon } from "./images/rain.svg";
-import { ReactComponent as RedoIcon } from "./images/refresh.svg";
+import { ReactComponent as RefreshIcon } from "./images/refresh.svg";
+import { ReactComponent as LoadingIcon } from "./images/loading.svg";
 
 const Container = styled.div`
   background-color: #ededed;
@@ -105,7 +106,17 @@ const Rain = styled.div`
   }
 `;
 
-const Redo = styled.div`
+const rotate = keyframes`
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+`;
+
+const Refresh = styled.div`
   position: absolute;
   right: 15px;
   bottom: 15px;
@@ -118,6 +129,8 @@ const Redo = styled.div`
     width: 15px;
     height: 15px;
     cursor: pointer;
+    animation: ${rotate} infinite 1.5s linear;
+    animation-duration: ${({ isLoading }) => (isLoading ? "1.5s" : "0s")};
   }
 `;
 
@@ -243,7 +256,21 @@ const WeatherApp = () => {
       sunrise: "",
       sunset: "",
     },
+    isLoading: true,
   });
+  const {
+    observationTime,
+    locationName,
+    temperature,
+    windSpeed,
+    humid,
+    description,
+    weatherCode,
+    rainPossibility,
+    comfortability,
+    time,
+    isLoading,
+  } = curWeather;
   const fetchData = useCallback(() => {
     console.log("useCallback");
     const fetchWeatherData = async () => {
@@ -258,8 +285,15 @@ const WeatherApp = () => {
         ...weatherEle,
         ...weatherForecast,
         ...sunriseAndSet,
+        isLoading: false, // 資料載入完畢
       });
     };
+
+    // 一開始畫面載入或使用者點選「更新按鈕」
+    setCurWeather((prev) => ({
+      ...prev,
+      isLoading: true,
+    }));
 
     fetchWeatherData();
   }, []);
@@ -277,36 +311,34 @@ const WeatherApp = () => {
   return (
     <Container>
       {console.log("render")}
+      {console.log(isLoading)}
       <WeatherCard>
-        <Location>{curWeather.locationName}</Location>
+        <Location>{locationName}</Location>
         <Description>
-          {curWeather.description} {curWeather.comfortability}
+          {description} {comfortability}
         </Description>
         <CurrentWeather>
           <Temperature>
-            {Math.round(curWeather.temperature)} <Celsius>°C</Celsius>
+            {Math.round(temperature)} <Celsius>°C</Celsius>
           </Temperature>
-          <WeatherIcon
-            curWeatherCode={curWeather.weatherCode}
-            moment={moment || "day"}
-          />
+          <WeatherIcon curWeatherCode={weatherCode} moment={moment || "day"} />
         </CurrentWeather>
         <AirFlow>
           <AirFlowIcon />
-          {curWeather.windSpeed} m/h
+          {windSpeed} m/h
         </AirFlow>
         <Rain>
           <RainIcon />
-          {Math.round(curWeather.rainPossibility)} %
+          {Math.round(rainPossibility)} %
         </Rain>
-        <Redo onClick={fetchData}>
+        <Refresh onClick={fetchData} isLoading={isLoading}>
           最後觀測時間:
           {new Intl.DateTimeFormat("zh-TW", {
             hour: "numeric",
             minute: "numeric",
-          }).format(new Date(curWeather.observationTime))}{" "}
-          <RedoIcon />
-        </Redo>
+          }).format(new Date(observationTime))}{" "}
+          {isLoading ? <LoadingIcon /> : <RefreshIcon />}
+        </Refresh>
       </WeatherCard>
     </Container>
   );
