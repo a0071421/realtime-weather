@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import WeatherCard from "./components/WeatherCard";
 import useWeatherApi from "./useWeatherApi";
 import WeatherSetting from "./components/WeatherSetting";
-
+import { findLocation } from "./global/utils";
 /* 定義許多組件都會共用到的樣式 */
 /* const buttonDefault = () => css`
   display: block;
@@ -73,9 +73,13 @@ const getMoment = ({
 
 const WeatherApp = () => {
   console.log("invoke function component");
-  const [curWeather, fetchData] = useWeatherApi();
+  const storageCity = localStorage.getItem("cityName");
   const [curTheme, setCurTheme] = useState("light");
   const [curPage, setCurpage] = useState("WeatherCard");
+  const [curCity, setCurCity] = useState(storageCity || "臺北市");
+  // 根據 curCity 來找出對應到不同 API 時顯示的地區名稱，
+  const curLocation = findLocation(curCity) || {};
+  const [curWeather, fetchData] = useWeatherApi(curLocation, setCurpage);
   const moment = useMemo(() => {
     console.log("moment memo");
     return getMoment(curWeather);
@@ -85,12 +89,18 @@ const WeatherApp = () => {
   useEffect(() => {
     setCurTheme(moment === "night" ? "dark" : "light");
   }, [moment]);
+
+  // 當 curCity 有改變的時候，儲存到 localStorage 中
+  useEffect(() => {
+    localStorage.setItem("cityName", curCity);
+  }, [curCity]);
   return (
     <ThemeProvider theme={theme[curTheme]}>
       <Container>
         {console.log("render")}
         {curPage === "WeatherCard" && (
           <WeatherCard
+            cityName={curLocation.cityName}
             curWeather={curWeather}
             moment={moment}
             fetchData={fetchData}
@@ -98,7 +108,11 @@ const WeatherApp = () => {
           />
         )}
         {curPage === "WeatherSetting" && (
-          <WeatherSetting setCurpage={setCurpage} />
+          <WeatherSetting
+            setCurCity={setCurCity}
+            cityName={curLocation.cityName}
+            setCurpage={setCurpage}
+          />
         )}
       </Container>
     </ThemeProvider>

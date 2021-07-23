@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useState, useRef } from "react";
+import { availableLocations } from "../global/utils";
 
 const WeatherSettingWrapper = styled.div`
   position: relative;
@@ -87,34 +88,16 @@ const Save = styled.button`
   }
 `;
 
-const locations = [
-  "嘉義縣",
-  "新北市",
-  "嘉義市",
-  "新竹縣",
-  "新竹市",
-  "臺北市",
-  "臺南市",
-  "宜蘭縣",
-  "苗栗縣",
-  "雲林縣",
-  "花蓮縣",
-  "臺中市",
-  "臺東縣",
-  "桃園市",
-  "南投縣",
-  "高雄市",
-  "金門縣",
-  "屏東縣",
-  "基隆市",
-  "澎湖縣",
-  "彰化縣",
-  "連江縣",
-];
+// 從 availableLocations 取出 cityName 來做為讓使用者可以選擇地區的清單
+const locations = availableLocations.map(
+  (availableLocation) => availableLocation.cityName
+);
 
-const WeatherSetting = ({ setCurpage }) => {
-  const [locationName, setLocationName] = useState("金門縣");
-  const inputLocationRef = useRef(null);
+const WeatherSetting = ({ setCurpage, setCurCity, cityName }) => {
+  const [locationName, setLocationName] = useState(cityName);
+  /* useRef-Uncontrolled Components */
+  // const inputLocationRef = useRef(null);
+
   /* controlled Components */
   const handleChangeLocationName = (e) => {
     console.log(e.target.value);
@@ -124,7 +107,10 @@ const WeatherSetting = ({ setCurpage }) => {
     /* controlled Components */
     if (locations.includes(locationName)) {
       console.log(`儲存的地區資訊為：${locationName}`);
-      setCurpage("WeatherCard");
+      setCurCity(locationName);
+      locationName === localStorage.getItem("cityName")
+        ? setCurpage("WeatherCard")
+        : "";
     } else {
       alert(`儲存失敗：您輸入的 ${locationName} 並非有效的地區`);
       return;

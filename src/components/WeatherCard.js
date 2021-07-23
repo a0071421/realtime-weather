@@ -113,10 +113,15 @@ const Cog = styled(CogIcon)`
   cursor: pointer;
 `;
 
-const WeatherCard = ({ curWeather, moment, fetchData, setCurpage }) => {
+const WeatherCard = ({
+  curWeather,
+  moment,
+  fetchData,
+  setCurpage,
+  cityName,
+}) => {
   const {
     observationTime,
-    locationName,
     temperature,
     windSpeed,
     description,
@@ -127,7 +132,7 @@ const WeatherCard = ({ curWeather, moment, fetchData, setCurpage }) => {
   } = curWeather;
   return (
     <WeatherCardWrapper>
-      <Location>{locationName}</Location>
+      <Location>{cityName}</Location>
       <Cog onClick={() => setCurpage("WeatherSetting")} />
       <Description>
         {description} {comfortability}

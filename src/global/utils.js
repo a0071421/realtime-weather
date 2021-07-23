@@ -12,11 +12,11 @@ export const availableLocations = [
   {
     cityName: "屏東縣",
     locationName: "恆春",
-    sunriseCityName: "屏東",
+    sunriseCityName: "屏東縣",
   },
   {
     cityName: "雲林縣",
-    locationName: "雲林",
+    locationName: "麥寮",
     sunriseCityName: "雲林縣",
   },
   {
@@ -36,17 +36,17 @@ export const availableLocations = [
   },
   {
     cityName: "桃園市",
-    locationName: "中壢",
+    locationName: "新屋",
     sunriseCityName: "桃園市",
   },
   {
     cityName: "彰化縣",
-    locationName: "秀水",
+    locationName: "彰師大",
     sunriseCityName: "彰化縣",
   },
   {
     cityName: "嘉義縣",
-    locationName: "朴子",
+    locationName: "國一N250K",
     sunriseCityName: "嘉義縣",
   },
   {
@@ -61,12 +61,12 @@ export const availableLocations = [
   },
   {
     cityName: "臺南市",
-    locationName: "臺南",
+    locationName: "南區中心",
     sunriseCityName: "臺南市",
   },
   {
     cityName: "南投縣",
-    locationName: "草屯",
+    locationName: "國三S217K",
     sunriseCityName: "南投縣",
   },
   {
