@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useState, useRef } from "react";
 
 const WeatherSettingWrapper = styled.div`
   position: relative;
@@ -112,25 +113,58 @@ const locations = [
 ];
 
 const WeatherSetting = ({ setCurpage }) => {
+  const [locationName, setLocationName] = useState("金門縣");
+  const inputLocationRef = useRef(null);
+  /* controlled Components */
+  const handleChangeLocationName = (e) => {
+    console.log(e.target.value);
+    setLocationName(e.target.value);
+  };
+  const handleClickSave = () => {
+    /* controlled Components */
+    if (locations.includes(locationName)) {
+      console.log(`儲存的地區資訊為：${locationName}`);
+      setCurpage("WeatherCard");
+    } else {
+      alert(`儲存失敗：您輸入的 ${locationName} 並非有效的地區`);
+      return;
+    }
+    /* useRef-Uncontrolled Components */
+    // const locationName = inputLocationRef.current.value;
+    // console.log(locationName);
+  };
+  const renderCount = useRef(0);
+
   return (
     <WeatherSettingWrapper>
+      {(renderCount.current += 1)}
+      {console.log("render", renderCount.current)}
       <Title>設定</Title>
       <StyledLabel htmlFor="location">地區</StyledLabel>
       <StyledInputList
         list="location-list"
         id="location"
         name="location"
+        /* controlled Components */
+        onChange={handleChangeLocationName}
+        value={locationName}
+
+        /* uncontrolled Components 設定初始值 */
+        // ref={inputLocationRef}
+        // defaultValue={locationName}
       ></StyledInputList>
       <datalist id="location-list">
         {/* 定義 datalist 中的 options*/}
 
-        {locations.map((location) => (
-          <option value={location}>{location}</option>
+        {locations.map((location, index) => (
+          <option key={index} value={location}>
+            {location}
+          </option>
         ))}
       </datalist>
       <ButtonGroup>
         <Back onClick={() => setCurpage("WeatherCard")}>返回</Back>
-        <Save>儲存</Save>
+        <Save onClick={handleClickSave}>儲存</Save>
       </ButtonGroup>
     </WeatherSettingWrapper>
   );
