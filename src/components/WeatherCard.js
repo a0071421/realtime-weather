@@ -8,22 +8,6 @@ const WeatherCardWrapper = styled.div`
   box-sizing: border-box;
   padding: 30px 15px;
 `;
-const Header = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-`;
-
-const SelectLocation = styled.select`
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #ced4da;
-  &:focus {
-    border-color: #86b7fe;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
-  }
-`;
 
 const Location = styled.div`
   font-size: 28px;
@@ -118,8 +102,18 @@ import { ReactComponent as AirFlowIcon } from "../images/airFlow.svg";
 import { ReactComponent as RainIcon } from "../images/rain.svg";
 import { ReactComponent as RefreshIcon } from "../images/refresh.svg";
 import { ReactComponent as LoadingIcon } from "../images/loading.svg";
+import { ReactComponent as CogIcon } from "../images/cog.svg";
 
-const WeatherCard = ({ curWeather, moment, fetchData }) => {
+const Cog = styled(CogIcon)`
+  position: absolute;
+  top: 30px;
+  right: 15px;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+`;
+
+const WeatherCard = ({ curWeather, moment, fetchData, setCurpage }) => {
   const {
     observationTime,
     locationName,
@@ -133,14 +127,8 @@ const WeatherCard = ({ curWeather, moment, fetchData }) => {
   } = curWeather;
   return (
     <WeatherCardWrapper>
-      <Header>
-        <Location>{locationName}</Location>
-        {/*  <SelectLocation onChange={changeClick}>
-      <option value="臺北市">臺北市</option>
-      <option value="新北市">新北市</option>
-    </SelectLocation> */}
-      </Header>
-
+      <Location>{locationName}</Location>
+      <Cog onClick={() => setCurpage("WeatherSetting")} />
       <Description>
         {description} {comfortability}
       </Description>

@@ -2,6 +2,7 @@ import styled, { css, keyframes, ThemeProvider } from "styled-components";
 import { useState, useEffect, useMemo } from "react";
 import WeatherCard from "./components/WeatherCard";
 import useWeatherApi from "./useWeatherApi";
+import WeatherSetting from "./components/WeatherSetting";
 
 /* 定義許多組件都會共用到的樣式 */
 /* const buttonDefault = () => css`
@@ -74,7 +75,7 @@ const WeatherApp = () => {
   console.log("invoke function component");
   const [curWeather, fetchData] = useWeatherApi();
   const [curTheme, setCurTheme] = useState("light");
-
+  const [curPage, setCurpage] = useState("WeatherCard");
   const moment = useMemo(() => {
     console.log("moment memo");
     return getMoment(curWeather);
@@ -88,11 +89,17 @@ const WeatherApp = () => {
     <ThemeProvider theme={theme[curTheme]}>
       <Container>
         {console.log("render")}
-        <WeatherCard
-          curWeather={curWeather}
-          moment={moment}
-          fetchData={fetchData}
-        />
+        {curPage === "WeatherCard" && (
+          <WeatherCard
+            curWeather={curWeather}
+            moment={moment}
+            fetchData={fetchData}
+            setCurpage={setCurpage}
+          />
+        )}
+        {curPage === "WeatherSetting" && (
+          <WeatherSetting setCurpage={setCurpage} />
+        )}
       </Container>
     </ThemeProvider>
   );
