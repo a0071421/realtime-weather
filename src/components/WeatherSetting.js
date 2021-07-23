@@ -108,9 +108,9 @@ const WeatherSetting = ({ setCurpage, setCurCity, cityName }) => {
     if (locations.includes(locationName)) {
       console.log(`儲存的地區資訊為：${locationName}`);
       setCurCity(locationName);
-      locationName === localStorage.getItem("cityName")
-        ? setCurpage("WeatherCard")
-        : "";
+      if (locationName === localStorage.getItem("cityName")) {
+        setCurpage("WeatherCard");
+      }
     } else {
       alert(`儲存失敗：您輸入的 ${locationName} 並非有效的地區`);
       return;
